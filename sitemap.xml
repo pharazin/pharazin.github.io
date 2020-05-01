@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>http://pebblyrake.com/tags/miscellanea/</loc>
+    <lastmod>2020-04-25T08:29:33+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://pebblyrake.com/</loc>
+    <lastmod>2020-04-25T08:29:33+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://pebblyrake.com/posts/post-ideas/</loc>
+    <lastmod>2020-04-25T08:29:33+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://pebblyrake.com/posts/</loc>
+    <lastmod>2020-04-25T08:29:33+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://pebblyrake.com/tags/</loc>
+    <lastmod>2020-04-25T08:29:33+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://pebblyrake.com/tags/centos/</loc>
+    <lastmod>2020-04-24T08:01:42+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://pebblyrake.com/tags/docker/</loc>
+    <lastmod>2020-04-24T08:01:42+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://pebblyrake.com/posts/installing-docker-in-centos8/</loc>
+    <lastmod>2020-04-24T08:01:42+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://pebblyrake.com/tags/tech-notes/</loc>
+    <lastmod>2020-04-24T08:01:42+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://pebblyrake.com/categories/</loc>
+  </url>
+  
+</urlset>

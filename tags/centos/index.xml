@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>centos on pebblyrake</title>
+    <link>http://pebblyrake.com/tags/centos/</link>
+    <description>Recent content in centos on pebblyrake</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 24 Apr 2020 08:01:42 +0000</lastBuildDate>
+    
+	<atom:link href="http://pebblyrake.com/tags/centos/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Installing Docker CE in CentOS 8</title>
+      <link>http://pebblyrake.com/posts/installing-docker-in-centos8/</link>
+      <pubDate>Fri, 24 Apr 2020 08:01:42 +0000</pubDate>
+      
+      <guid>http://pebblyrake.com/posts/installing-docker-in-centos8/</guid>
+      <description>Installation Let&amp;rsquo;s install the Docker Community Edition. Easy:
+$ sudo dnf install docker-ce Error: Unable to find a match: docker-ce Oh.
+Installation being harder than it needs to be will be a consistent theme. Why must this be a pain? It&amp;rsquo;s unclear to me, but it&amp;rsquo;s hard not to be suspicious that container politics isn&amp;rsquo;t playing into it.
+Neither Red Hat nor Docker support installing Docker on RHEL/CentOS 8. Red Hat would prefer you use podman and buildah, while Docker would prefer you go with Docker Enterprise Edition or use a different distro.</description>
+    </item>
+    
+  </channel>
+</rss>
