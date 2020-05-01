@@ -1,6 +1,0 @@
-baseURL = "http://pebblyrake.com/"
-languageCode = "en-us"
-title = "pebblyrake"
-
-[params]
-    footer = "&copy; [Patrick Harazin](/) 2019 -- 2020"
