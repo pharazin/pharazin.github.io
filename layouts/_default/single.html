@@ -1,0 +1,22 @@
+{{ partial "header.html" . }}
+<div class="article-meta">
+<h1><span class="title">{{ .Title | markdownify }}</span></h1>
+
+<hr>
+<p>
+<span class="icon-calendar"></span>
+<span>{{ .Date.Format "January 2, 2008" }}</span><br>
+<span class="icon-clock"></span>
+<span>{{ mul 5 (add 1 (div (countwords .Content) 1000)) }} minute read</span><br>
+<span class="icon-tag"></span>
+{{ range (.GetTerms "tags") }}
+<span><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></span>
+{{ end }}
+</p>
+</div>
+
+<main>
+{{ .Content }}
+</main>
+
+{{ partial "footer.html" . }}

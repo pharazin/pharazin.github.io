@@ -1,0 +1,59 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Installing Docker CE in CentOS 8 | pebblyrake</title><link rel=icon href=data:><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/fonts.css></head><body><div class=article-meta><h1><span class=title>Installing Docker CE in CentOS 8</span></h1><p><span class=icon-calendar></span><span>April 24, 24008</span><br><span class=icon-clock></span><span>5 minute read</span><br><span class=icon-tag></span><span><a href=/tags/centos/>centos</a></span>
+<span><a href=/tags/docker/>docker</a></span>
+<span><a href=/tags/tech-notes/>tech-notes</a></span></p></div><main><h2 id=installation>Installation</h2><p>Let&rsquo;s install the Docker Community Edition. Easy:</p><pre><code>$ sudo dnf install docker-ce
+...Error: Unable to find a match: docker-ce
+</code></pre><p>Oh.</p><p>Installation being harder than it needs to be will be a consistent theme. Why must this be a pain?
+It&rsquo;s unclear to me, but it&rsquo;s hard not to be suspicious that container politics isn&rsquo;t playing into it.</p><p>Neither Red Hat nor Docker support installing Docker on RHEL/CentOS 8. Red Hat would prefer you
+use <code>podman</code> and <code>buildah</code>, while Docker would prefer you go with Docker Enterprise Edition
+or use a different distro. Let&rsquo;s fight against the current and try to shove the Docker CE package for
+CentOS 7 into our CentOS 8. There will be rough edges here.</p><p>We&rsquo;ll start by configuring <code>dnf</code> to add and enable Docker&rsquo;s repository.</p><pre><code># make sure you have the config-manager installed
+$ sudo dnf install dnf-plugins-core 
+$ sudo dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+Adding repo from: https://download.docker.com/linux/centos/docker-ce.repo
+</code></pre><p>Great. Now that we&rsquo;re ready to go&mldr;</p><pre><code>$ sudo dnf install docker-ce
+...
+Error: 
+ Problem: package docker-ce-3:19.03.8-3.el7.x86_64 requires containerd.io &gt;= 1.2.2-3, but none of the providers can be installed
+  - cannot install the best candidate for the job
+  - package containerd.io-1.2.10-3.2.el7.x86_64 is excluded
+  - package containerd.io-1.2.13-3.1.el7.x86_64 is excluded
+  - package containerd.io-1.2.2-3.3.el7.x86_64 is excluded
+  - package containerd.io-1.2.2-3.el7.x86_64 is excluded
+  - package containerd.io-1.2.4-3.1.el7.x86_64 is excluded
+  - package containerd.io-1.2.5-3.1.el7.x86_64 is excluded
+  - package containerd.io-1.2.6-3.3.el7.x86_64 is excluded
+(try to add '--skip-broken' to skip uninstallable packages or '--nobest' to use not only best candidate packages)
+</code></pre><p>Why is <code>containerd.io</code> cryptically marked as excluded? Some nefarious Red Hat conspiracy? The underlying issue
+is that Docker&rsquo;s <code>containerd.io</code> package provides <code>runc</code>, which is also provided by <code>runc</code> package
+in Red Hat&rsquo;s <code>container-tools</code> module. There is no guarantee that they&rsquo;re compatible.</p><p>The usual suggestion is the one suggested by <code>dnf</code> itself, which is to use <code>--nobest</code>. This installs <code>docker-ce-3:18.X</code> instead of <code>docker-ce-3:19.X</code>,
+which allows falling back to the nonexcluded but older <code>containerd.io-1.2.0</code>. Additionally, <code>--nobest</code> breaks <code>dnf update</code>.</p><p>A better alternative is to disable the <code>container-tools</code> module. We first install <code>container-selinux</code> from it, to satisfy a dependency of <code>docker-ce</code>:</p><pre><code>$ sudo dnf install container-selinux
+$ sudo dnf module disable container-tools
+</code></pre><p>Disabling <code>container-tools</code> is a workaround, but it&rsquo;s a better workaround than <code>--nobest</code>.</p><p>We can now install <code>docker-ce</code> in a (relatively) clean way:</p><pre><code>$ sudo dnf install docker-ce
+</code></pre><h2 id=enabling-the-docker-daemon-on-systemd>Enabling the Docker daemon on systemd</h2><p>Now, enable and start the <code>dockerd</code> service in <code>systemd</code>:</p><pre><code>$ sudo systemctl enable docker
+Created symlink /etc/systemd/system/multi-user.target.wants/docker.service → /usr/lib/systemd/system/docker.service
+$ sudo systemctl start docker
+</code></pre><p>If you went with the <code>--nobest</code> approach above, you may run into issues here. I originally did this,
+and I ended up hitting some dependency issues with <code>containerd</code>.</p><pre><code>$ sudo systemctl start docker
+A dependency job for docker.service failed. See 'journalctl -xe' for details.
+$ journalctl -xe
+...
+Apr 22 15:56:47 host modprobe[2066]: modprobe: FATAL: Module overlay not found in directory /lib/modules/4.19.98-08076-g24ab33fb8e14
+...
+Apr 22 15:56:47 host systemd[1]: containerd.service: Control process exited, code=exited status=1
+Apr 22 15:56:47 host systemd[1]: containerd.service: Failed with result 'exit-code'.
+Apr 22 15:56:47 host systemd[1]: Failed to start containerd container runtime.
+...
+Apr 22 15:56:47 host systemd[1]: Dependency failed for Docker Application Container Engine.
+...
+Apr 22 15:56:47 host systemd[1]: docker.service: Job docker.service/start failed with result 'dependency'.
+</code></pre><p>Before <code>systemd</code> starts <code>containerd</code>, it asks the kernel to load the <code>overlay</code> module, which fails on my system.</p><pre><code>$ cat /lib/systemd/system/containerd.service
+...
+[Service]
+ExecStartPre=/sbin/modprobe overlay
+...
+</code></pre><p>Creating an override file for <code>containerd</code> and resetting the <code>ExecStartPre</code> entry fixes the issue.</p><pre><code>$ sudo systemctl edit containerd.service
+[Service]
+ExecStartPre=
+</code></pre><p>More recent versions of <code>containerd</code> do not have this issue.</p><p>At this point, Docker should be up and running for you. If you have <code>firewalld</code> running, it may block DNS.
+You may want to add your user to the <code>docker</code> group, which allows you to use the <code>docker</code> cli without <code>sudo</code>.</p><pre><code>$ usermod -aG docker username
+</code></pre><p>Logout and log back in afterwards to see the change take effect, and you&rsquo;re good to go.</p></main><footer><hr>© <a href=/>Patrick Harazin</a> 2019 &ndash; 2020</footer></body></html>
